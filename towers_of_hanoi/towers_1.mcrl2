@@ -23,9 +23,10 @@ map
 var x, y: Pos;
 
 eqn
-    N = 3; %% Constant definition
-    (x == y) -> build_stack(x, y) = [x];
-    (x < y) -> build_stack(x, y) = y <| build_stack(x, Int2Pos(y-1));
+    N = 3; %% Constant definition(
+    (x >  y) -> build_stack(x,y) = [];
+    (x <= y) -> build_stack(x,y) = push(x,build_stack(x+1,y));
+
 
 act
     send_disk, receive_disk, move_disk : Pos # Pos # Pos ;
@@ -42,7 +43,7 @@ proc
     ;
 
 init allow (
-    {move},
+    {move_disk},
     comm(
         { send_disk | receive_disk -> move_disk},
         Peg(1, build_stack(1, N)) || Peg(2, []) || Peg(3, [])
