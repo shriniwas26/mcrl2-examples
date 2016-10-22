@@ -1,0 +1,51 @@
+sort Stack = List(Pos);
+
+map  
+    empty: Stack -> Bool;       
+    push:  Pos # Stack -> Stack;
+    pop:   Stack -> Stack;      
+    top:   Stack -> Pos;
+
+var  
+    s: Stack;
+    x: Pos;
+
+eqn  
+    empty(s)  = ( s == [] );             % return whether s is empty
+    push(x,s) = (x |> s);                % put x on top of s
+    pop(s)    = tail(s);                 % remove top element from s
+    (!empty(s)) -> top(s) = head(s);     % return top element of s
+
+map 
+    N: Pos;
+    build_stack: Pos # Pos -> Stack;
+
+var x, y: Pos;
+
+eqn
+    N = 3; %% Constant definition
+    (x == y) -> build_stack(x, y) = [x];
+    (x < y) -> build_stack(x, y) = y <| build_stack(x, Int2Pos(y-1));
+
+act
+    send_disk, receive_disk, move_disk : Pos # Pos # Pos ;
+
+proc
+    Peg (id: Pos, stack: Stack) =
+        %% receive
+        sum sending_peg, diameter_disk: Pos . (empty(stack) || diameter_disk < top(stack)) ->
+            receive_disk(diameter_disk, sending_peg, id) . Peg(id, push(diameter_disk, stack))
+    +
+        %% send
+        sum receiving_disk: Pos . (!empty(stack)) ->
+            send_disk(top(stack), id, receiving_disk) . Peg(id, pop(stack))
+    ;
+
+init allow (
+    {move},
+    comm(
+        { send_disk | receive_disk -> move_disk},
+        Peg(1, build_stack(1, N)) || Peg(2, []) || Peg(3, [])
+        )
+    );
+

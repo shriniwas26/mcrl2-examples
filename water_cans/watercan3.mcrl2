@@ -48,6 +48,8 @@ init
   allow( 
     { empty, fill, done, pour },
   comm(
-    { lose_all|gain_some -> pour, lose_some|gain_all -> pour },
-  Can(A,sizeA,0) || Can(B,sizeB,0) 
+    { lose_all|gain_some -> pour,
+      lose_some|gain_all -> pour 
+    },
+    Can(A,sizeA,0) || Can(B,sizeB,0) 
     ));
